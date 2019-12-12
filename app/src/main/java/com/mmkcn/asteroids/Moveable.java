@@ -2,7 +2,6 @@ package com.mmkcn.asteroids;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
@@ -11,17 +10,17 @@ import java.io.Serializable;
 public class Moveable implements Serializable {
 
     private static final String TAG = "mmkcnMoveable";
-    private static float stTicDurationS;        // via setClassAttributes()
-    private static int stScreenWidth;           //            "
+    private static float stTicDurationS;
+    private static int stScreenWidth;
     private static int stScreenHeight;
 
-    protected float x = 0f;    // in Pixel
-    protected float y = 0f;    // in Pixel, Orientierung: nach unten
-    protected float direction; // in Grad, math. Richtung, da y nach unten zeigt, folgt: im Uhrzeigersinn
-    protected float speed;     // in Pixel / s
+    protected float x = 0f;    // in pixel
+    protected float y = 0f;    // in pixel, orientation downwards
+    protected float direction; // in degrees, because y is downwards clockwise
+    protected float speed;     // in pixel per second
     protected boolean isAlive = true;
 
-    // Objektattribute transient (werden nicht serialisiert, sondern in init() behandelt/berechnet)
+    // transient attributes won't be serialized
     private transient float xSpeed = 0f;    // speed = pixel/s
     private transient float ySpeed = 0f;
     protected transient float centerX, centerY;
@@ -35,9 +34,8 @@ public class Moveable implements Serializable {
     }
 
     public Moveable(float xStart, float yStart, float direction, float speed) {
-        // Test, ob die Klassenattribute initialisiert sind:
-        float test = stTicDurationS;     // sollte eine exception liefern, falls die Initialisierung
-        // via setClassAttributes() nicht erfolgte
+        // test, if class attributes are initialized
+        float test = stTicDurationS;     // if initializing fails it throws an exception
         this.x = xStart;
         this.y = yStart;
         this.direction = direction;
@@ -45,19 +43,14 @@ public class Moveable implements Serializable {
     }
 
     public void init(Bitmap bitmap) {
-        // initialisiert alle (weiteren) transienten Attribute
+        // initializing remaining attributes
         this.bitmap = bitmap;
-
         float pixelPerTimeTic = speed * stTicDurationS;
         xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * pixelPerTimeTic;
-        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * pixelPerTimeTic;  // Achtung: y waechst in neg. Richtung
+        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * pixelPerTimeTic;  // y grows in negative direction!
 
         centerX = bitmap.getWidth() / 2;
         centerY = bitmap.getHeight() / 2;
-
-        paint = new Paint();
-        paint.setStyle(Paint.Style.FILL);
-        paint.setColor(Color.WHITE);
     }
 
     public void move() {
@@ -89,6 +82,4 @@ public class Moveable implements Serializable {
     public void draw(Canvas canvas) {
         canvas.drawBitmap(bitmap, x, y, null);
     }
-
-
 }

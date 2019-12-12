@@ -1,16 +1,17 @@
 package com.mmkcn.asteroids;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import java.io.Serializable;
 
 public class Bullet extends Moveable implements Serializable {
 
-    // Klassenattribute (werden nicht serialisiert)
+    // Class attributes
     private static final String TAG = "mmkcnBullet";
     private static Bitmap bitmap;
 
-    // Objektattribute (werden serialisiert)
+    // Object attributes (serialize)
     private int timeToLiveTics;
 
     public static void setClassAttributes(Bitmap bitmap) {
@@ -18,11 +19,12 @@ public class Bullet extends Moveable implements Serializable {
     }
 
     public Bullet(float xStart, float yStart, float direction, float speed, float timeToLiveS) {
-        super(xStart - Bullet.bitmap.getWidth()/2, yStart - Bullet.bitmap.getHeight()/2, direction, speed);
+        super(xStart - Bullet.bitmap.getWidth() / 2, yStart - Bullet.bitmap.getHeight() / 2, direction, speed);
 
         super.init(Bullet.bitmap);
-
-        this.timeToLiveTics = (int) (timeToLiveS/Model.ticDurationS);
+        this.timeToLiveTics = (int) (timeToLiveS / Model.ticDurationS);
+        Log.d(TAG, "timeToLiveTics: " +timeToLiveTics);
+        Log.d(TAG, "ModelTic: "+ Model.ticDurationS);
     }
 
     public void init() {
@@ -39,6 +41,4 @@ public class Bullet extends Moveable implements Serializable {
             isAlive = false;
         }
     }
-
-
 }
