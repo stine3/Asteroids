@@ -1,12 +1,14 @@
 package com.mmkcn.asteroids;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
@@ -18,25 +20,44 @@ public class Controller extends Activity implements SensorEventListener {
 
     public Model model;
     private SensorManager sensorManager;
-    private Sensor sensor;
 
 
     private CountDownTimer timer = new CountDownTimer(Long.MAX_VALUE, (int) (1000.0 * Model.ticDurationS)) {
         public void onTick(long millisUntilFinished) {
-            Log.v("TAG", "timer.onTick()");
+            //Log.v("TAG", "timer.onTick()");
 
             // create graphics on start
             if (model.ticCounter == 0) {
-                model.spaceShip = new SpaceShip(100f, 50f, model);
+                model.spaceShip = new SpaceShip(200, 400, model);
                 // model.asteroid = new Asteroid(500f, 55f, 0f, -50f);
             }
 
             model.ticCounter++;
             model.deleteDead();
 
-            // example movement // TODO motion controlling
+            // orientation in z direction: move forwards/backwards
+            // TODO check for phone orientation (90 or -90 degrees at start?)
+            if (orientationAngles[2] > 85.0 && orientationAngles[2] < 95.0) {
+                model.spaceShip.x = model.spaceShip.x + 0;
+            } else if (orientationAngles[2] < 90.0) {
+                model.spaceShip.x = model.spaceShip.x - 5;
+
+            } else if (orientationAngles[2] > 90.0) {
+                model.spaceShip.x = model.spaceShip.x + 5;
+            }
+            // orientation in y direction: orientation of spaceship
+            if (orientationAngles[1] > -5f && orientationAngles[1] < 5f) {
+                model.spaceShip.rotate(0);
+            } else if (orientationAngles[1] < 0f) {
+                model.spaceShip.rotate(-5);
+
+            } else if (orientationAngles[1] > 0f) {
+                model.spaceShip.rotate(5);
+            }
+
             model.spaceShip.move();
-            model.spaceShip.rotate(2);
+
+
             for (Bullet bullet : model.arBullets) {
                 bullet.move();
             }
@@ -60,11 +81,11 @@ public class Controller extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
         sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
-        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
 
         model = new Model(this);
         screen = new Screen(getApplicationContext());
         screen.setModel(model);
+
 
         setContentView(screen);
     }
@@ -88,7 +109,14 @@ public class Controller extends Activity implements SensorEventListener {
         super.onResume();
         Log.d(TAG, "onResume()");
 
-        sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+        Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if (magneticField != null) {
+            sensorManager.registerListener(this, magneticField, SensorManager.SENSOR_DELAY_NORMAL);
+        }
 
         if (model.isInit) {
             timer.start();
@@ -120,21 +148,20 @@ public class Controller extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        updateOrientationAngles();
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, accelerometerReading,
-                    0, accelerometerReading.length);
+            accelerometerReading[0] = event.values[0];
+            accelerometerReading[1] = event.values[1];
+            accelerometerReading[2] = event.values[2];
         } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, magnetometerReading,
-                    0, magnetometerReading.length);
+            magnetometerReading[0] = event.values[0];
+            magnetometerReading[1] = event.values[1];
+            magnetometerReading[2] = event.values[2];
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            //model.spaceShip.move();
-        }
-
+        updateOrientationAngles();
         Log.d(TAG, "angles: x: " + orientationAngles[0] + " y: " + orientationAngles[1] + " z: " + orientationAngles[2]);
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -146,10 +173,10 @@ public class Controller extends Activity implements SensorEventListener {
         SensorManager.getRotationMatrix(rotationMatrix, null,
                 accelerometerReading, magnetometerReading);
 
-        // "mRotationMatrix" now has up-to-date information.
-
         SensorManager.getOrientation(rotationMatrix, orientationAngles);
-
-        // "mOrientationAngles" now has up-to-date information.
+        orientationAngles[0] = (float) Math.toDegrees(orientationAngles[0]);
+        orientationAngles[1] = (float) Math.toDegrees(orientationAngles[1]);
+        orientationAngles[2] = (float) Math.toDegrees(orientationAngles[2]);
     }
+
 }

@@ -54,8 +54,8 @@ public class Moveable implements Serializable {
     }
 
     public void move() {
-        x = (x + xSpeed + stScreenWidth) % stScreenWidth;
-        y = (y + ySpeed + stScreenHeight) % stScreenHeight;
+        x = x + xSpeed  ;
+        y = y + ySpeed  ;
     }
 
     public boolean isAlive() {

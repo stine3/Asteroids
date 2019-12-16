@@ -1,23 +1,29 @@
 package com.mmkcn.asteroids;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
 import android.view.View;
+
 
 public class Screen extends View {
 
-    Model model;
+    public Bitmap background = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
+    DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+    int width = metrics.widthPixels;
+    int height = metrics.heightPixels;
+    double scale = height / 1080.0; // 1080px is the height of our background, which we use to scale to display size
 
-    // testing:
+    Model model;
     Paint paint = new Paint();
 
     public Screen(Context context) {
 
         super(context);
-        setBackgroundColor(Color.BLACK);
 
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.YELLOW);
@@ -31,26 +37,19 @@ public class Screen extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        background = Bitmap.createScaledBitmap(background, (int) (1920 * scale), (int) (1080 * scale), true); // scale bitmap to screen size
+        canvas.drawBitmap(background, 0, 0, paint); // draw bitmap at top left corner (0,0)
 
         if ((model.ticCounter == 0)) {
             return;  // draw graphics when tic is at 1
         }
 
-        // scale to 1000 virtual pixels
-        Matrix matCanvas = new Matrix();
-        float yFac = (float) getHeight() / 1000f;
-        matCanvas.setScale(yFac, yFac);
-        canvas.concat(matCanvas);
-
         model.spaceShip.draw(canvas);
         //model.asteroid.draw(canvas);
-
         for (Bullet bullet : model.arBullets) {
             bullet.draw(canvas);
         }
-
         //debug:
         canvas.drawText(model.ticCounter.toString(), 100, 500, paint);
     }
-
 }
