@@ -1,6 +1,5 @@
 package com.mmkcn.asteroids;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -13,10 +12,9 @@ public class SpaceShip extends Moveable implements Serializable {
     private static final String TAG = "mmkcnSpaceShip";
     private static Bitmap bitmap;
     private transient Model model;
+    public Integer lives = 3;
 
-
-
-    private float direction;  // in degree //TODO motion controller
+    public float direction;  // in degrees
 
     public SpaceShip(float xStart, float yStart, Model model) {
         super(xStart, yStart, 0f, 0f);
@@ -44,15 +42,19 @@ public class SpaceShip extends Moveable implements Serializable {
         model.add(bullet);
     }
 
-    /*Ü
-       public void move() {
+    public void move() {
+        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * 5;
+        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * 5;
+        Log.d(TAG, "xPos: " + x + " / yPos: " + y);
         super.move();
     }
-    */
 
-    public void setX(int x){
-        this.x = x;
+    public void moveBackwards() {
+        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * -5;
+        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * -5;
+        super.move();
     }
+
 
     @Override
     public void draw(Canvas canvas) {

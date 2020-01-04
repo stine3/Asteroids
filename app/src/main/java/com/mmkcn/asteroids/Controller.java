@@ -12,6 +12,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.util.Random;
+
 public class Controller extends Activity implements SensorEventListener {
 
     private static final String TAG = "mmkcnController";
@@ -21,6 +23,16 @@ public class Controller extends Activity implements SensorEventListener {
     public Model model;
     private SensorManager sensorManager;
 
+    private CountDownTimer asTimer = new CountDownTimer(100000, 6000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            model.arAsteroid.add(model.asteroid.generateRandomAst(screen.width, screen.height));
+        }
+        @Override
+        public void onFinish() {
+
+        }
+    };
 
     private CountDownTimer timer = new CountDownTimer(Long.MAX_VALUE, (int) (1000.0 * Model.ticDurationS)) {
         public void onTick(long millisUntilFinished) {
@@ -28,45 +40,23 @@ public class Controller extends Activity implements SensorEventListener {
 
             // create graphics on start
             if (model.ticCounter == 0) {
-                model.spaceShip = new SpaceShip(200, 400, model);
-                // model.asteroid = new Asteroid(500f, 55f, 0f, -50f);
+                model.spaceShip = new SpaceShip(screen.width / 2, screen.height / 2, model);
+                model.asteroid = new Asteroid(0, 0, 0, 0);
             }
 
+            manageSensorMovement();// moves spaceship according to sensors
+            model.manageCollisions(); // manages bullet and asteroid collisions
             model.ticCounter++;
-            model.deleteDead();
+            model.deleteDead(); // delete hit bullets and asteroids
 
-            // orientation in z direction: move forwards/backwards
-            // TODO check for phone orientation (90 or -90 degrees at start?)
-            if (orientationAngles[2] > 85.0 && orientationAngles[2] < 95.0) {
-                model.spaceShip.x = model.spaceShip.x + 0;
-            } else if (orientationAngles[2] < 90.0) {
-                model.spaceShip.x = model.spaceShip.x - 5;
 
-            } else if (orientationAngles[2] > 90.0) {
-                model.spaceShip.x = model.spaceShip.x + 5;
+            // move all bullets and asteroids
+            for (Asteroid asteroid : model.arAsteroid) {
+                asteroid.move();
             }
-            // orientation in y direction: orientation of spaceship
-            if (orientationAngles[1] > -5f && orientationAngles[1] < 5f) {
-                model.spaceShip.rotate(0);
-            } else if (orientationAngles[1] < 0f) {
-                model.spaceShip.rotate(-5);
-
-            } else if (orientationAngles[1] > 0f) {
-                model.spaceShip.rotate(5);
-            }
-
-            model.spaceShip.move();
-
-
             for (Bullet bullet : model.arBullets) {
                 bullet.move();
             }
-
-            // model.asteroid.move();
-
-            // if( model.asteroid.collision(model.spaceShip) ) {
-            // Log.v(TAG, "collision() ------------------------------------------------------ ");
-            //}
             screen.invalidate();
         }
 
@@ -85,8 +75,6 @@ public class Controller extends Activity implements SensorEventListener {
         model = new Model(this);
         screen = new Screen(getApplicationContext());
         screen.setModel(model);
-
-
         setContentView(screen);
     }
 
@@ -101,6 +89,7 @@ public class Controller extends Activity implements SensorEventListener {
             // initialize model
             model.init(screen.getHeight(), screen.getWidth());
             timer.start();
+            asTimer.start();
         }
     }
 
@@ -127,7 +116,6 @@ public class Controller extends Activity implements SensorEventListener {
     protected void onPause() {      // persistence
         super.onPause();
         Log.d(TAG, "onPause()");
-
         sensorManager.unregisterListener(this);
         timer.cancel();
         model.save();   // onPause always gets called when closing an app -> we save our values at this point
@@ -141,10 +129,8 @@ public class Controller extends Activity implements SensorEventListener {
 
     private final float[] accelerometerReading = new float[3];
     private final float[] magnetometerReading = new float[3];
-
     private final float[] rotationMatrix = new float[9];
     private final float[] orientationAngles = new float[3];
-
 
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -159,7 +145,7 @@ public class Controller extends Activity implements SensorEventListener {
             magnetometerReading[2] = event.values[2];
         }
         updateOrientationAngles();
-        Log.d(TAG, "angles: x: " + orientationAngles[0] + " y: " + orientationAngles[1] + " z: " + orientationAngles[2]);
+        //Log.d(TAG, "angles: x: " + xOri + " y: " + yOri + " z: " + zOri);
     }
 
 
@@ -168,15 +154,74 @@ public class Controller extends Activity implements SensorEventListener {
 
     }
 
+
+    public float xOri;
+    public float yOri;
+    public float zOri;
+
     public void updateOrientationAngles() {
         // Update rotation matrix, which is needed to update orientation angles.
         SensorManager.getRotationMatrix(rotationMatrix, null,
                 accelerometerReading, magnetometerReading);
 
         SensorManager.getOrientation(rotationMatrix, orientationAngles);
-        orientationAngles[0] = (float) Math.toDegrees(orientationAngles[0]);
-        orientationAngles[1] = (float) Math.toDegrees(orientationAngles[1]);
-        orientationAngles[2] = (float) Math.toDegrees(orientationAngles[2]);
+        xOri = (float) Math.toDegrees(orientationAngles[0]);
+        yOri = (float) Math.toDegrees(orientationAngles[1]);
+        zOri = (float) Math.toDegrees(orientationAngles[2]);
     }
 
+    public void manageSensorMovement() {
+
+        // if x > 0, then homebutton is left
+        if (xOri > 0) {
+            if (zOri > 85f && zOri < 95f) {
+                // do nothing, don't move
+            } else if (zOri < 90f) {
+                // tilt phone forwards, moves spaceship backwards
+                model.spaceShip.moveBackwards();
+
+            } else if (zOri > 90f) {
+                // tilt phone backwards, moves spaceship forwards
+                model.spaceShip.move();
+            }
+
+            // orientation in y direction: orientation of spaceship
+            if (yOri > -5f && yOri < 5f) {
+                model.spaceShip.rotate(0);
+            } else if (yOri < 0f) {
+
+                model.spaceShip.rotate(-5);
+
+            } else if (yOri > 0f) {
+                model.spaceShip.rotate(5);
+            }
+
+            screen.orientation = false;
+
+            // else x is negative, so the homebutton is right
+        } else {
+            if (zOri < -85f && zOri > -95f) {
+                // do nothing, don't move
+            } else if (zOri < -90f) {
+                // tilt phone forwards, moves spaceship backwards
+                model.spaceShip.moveBackwards();
+
+            } else if (zOri > -90f) {
+                // tilt phone backwards, moves spaceship forwards
+                model.spaceShip.move();
+            }
+
+            // orientation in y direction: orientation of spaceship
+            if (yOri > -5f && yOri < 5f) {
+                model.spaceShip.rotate(0);
+            } else if (yOri > 0f) {
+
+                model.spaceShip.rotate(-5);
+
+            } else if (yOri < 0f) {
+                model.spaceShip.rotate(5);
+            }
+            screen.orientation = true;
+        }
+    }
 }

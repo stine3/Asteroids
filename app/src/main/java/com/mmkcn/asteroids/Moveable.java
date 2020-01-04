@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.util.Log;
 
 import java.io.Serializable;
 
@@ -21,8 +22,8 @@ public class Moveable implements Serializable {
     protected boolean isAlive = true;
 
     // transient attributes won't be serialized
-    private transient float xSpeed = 0f;    // speed = pixel/s
-    private transient float ySpeed = 0f;
+    protected transient float xSpeed = 0f;    // speed = pixel/s
+    protected transient float ySpeed = 0f;
     protected transient float centerX, centerY;
     private transient Bitmap bitmap;
     protected transient Paint paint;
@@ -48,14 +49,13 @@ public class Moveable implements Serializable {
         float pixelPerTimeTic = speed * stTicDurationS;
         xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * pixelPerTimeTic;
         ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * pixelPerTimeTic;  // y grows in negative direction!
-
         centerX = bitmap.getWidth() / 2;
         centerY = bitmap.getHeight() / 2;
     }
 
     public void move() {
-        x = x + xSpeed  ;
-        y = y + ySpeed  ;
+        x = (x + xSpeed + stScreenWidth) % stScreenWidth;
+        y = (y + ySpeed + stScreenHeight) % stScreenHeight;
     }
 
     public boolean isAlive() {

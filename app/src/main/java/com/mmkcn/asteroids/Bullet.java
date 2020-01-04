@@ -23,8 +23,6 @@ public class Bullet extends Moveable implements Serializable {
 
         super.init(Bullet.bitmap);
         this.timeToLiveTics = (int) (timeToLiveS / Model.ticDurationS);
-        Log.d(TAG, "timeToLiveTics: " +timeToLiveTics);
-        Log.d(TAG, "ModelTic: "+ Model.ticDurationS);
     }
 
     public void init() {
@@ -36,7 +34,6 @@ public class Bullet extends Moveable implements Serializable {
         super.move();
 
         timeToLiveTics = timeToLiveTics - 1;
-
         if (timeToLiveTics == 0) {
             isAlive = false;
         }

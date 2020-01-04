@@ -39,8 +39,11 @@ public class Model {
     public boolean isInit = false;
     public Integer ticCounter = 0;        // counts the amount of timer tics
     public SpaceShip spaceShip;
-    // public Asteroid asteroid;
+    public Asteroid asteroid;
     public ArrayList<Bullet> arBullets = new ArrayList<Bullet>();
+    public ArrayList<Asteroid> arAsteroid = new ArrayList<Asteroid>();
+
+    public Integer points = 0;
 
 
     public Model(Activity myAct) {
@@ -64,8 +67,9 @@ public class Model {
         bullet = Bitmap.createScaledBitmap(bullet, 30, 30, true);
         Bullet.setClassAttributes(bullet);
 
-        // bitmap = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.asteroid25_32);  //##
-        //  Asteroid.setClassAttributes(bitmap);
+        Bitmap asteroid = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.asteroid);
+        asteroid = Bitmap.createScaledBitmap(asteroid, 50, 50, true);
+        Asteroid.setClassAttributes(asteroid);
 
         load();
         isInit = true;
@@ -75,13 +79,41 @@ public class Model {
         arBullets.add(bullet);
     }
 
-    public void deleteDead() {
-        Iterator<Bullet> it = arBullets.iterator();
 
-        while (it.hasNext()) {
-            Bullet bullet = it.next();
+    public void deleteDead() {
+        Iterator<Bullet> itB = arBullets.iterator();
+
+        while (itB.hasNext()) {
+            Bullet bullet = itB.next();
             if (!bullet.isAlive) {
-                it.remove();
+                itB.remove();
+            }
+        }
+        Iterator<Asteroid> itA = arAsteroid.iterator();
+
+        while (itA.hasNext()) {
+            Asteroid asteroid = itA.next();
+            if (!asteroid.isAlive) {
+                itA.remove();
+            }
+        }
+    }
+
+
+    public void manageCollisions() {
+        for (Asteroid asteroid : arAsteroid) {
+            for (Bullet bullet : arBullets) {
+                if (bullet.collision(asteroid)) {
+                    asteroid.isAlive = false;
+                    bullet.isAlive = false; // delete asteroid and bullet
+                    points = points + 100;
+                }
+                if (spaceShip.collision(asteroid)) {
+                    Log.v(TAG, "collision() ------------------------------------------------------ ");
+                    asteroid.isAlive = false;
+                    spaceShip.lives--;
+                    // TODO kill spaceship or lose life or something
+                }
             }
         }
     }
@@ -96,9 +128,9 @@ public class Model {
 
             ObjectOutputStream o = new ObjectOutputStream(foStream);
             o.writeObject(ticCounter);
-            // o.writeObject(asteroid);
             o.writeObject(spaceShip);
             o.writeObject(arBullets);
+            o.writeObject(arAsteroid);
 
             Log.d(TAG, "save(): serialized objects");
         } catch (IOException e) {
@@ -123,13 +155,16 @@ public class Model {
             ObjectInputStream o = new ObjectInputStream(fiStream);
 
             ticCounter = (Integer) o.readObject();
-            //asteroid = (Asteroid) o.readObject();
-            //asteroid.init();
             spaceShip = (SpaceShip) o.readObject();
             spaceShip.init(this);
             arBullets = (ArrayList<Bullet>) o.readObject();
+
             for (Bullet bullet : arBullets) {
                 bullet.init();
+            }
+            arAsteroid = (ArrayList<Asteroid>) o.readObject();
+            for (Asteroid asteroid : arAsteroid) {
+                asteroid.init();
             }
 
             Log.d(TAG, "load(): load serialized objects");
