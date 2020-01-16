@@ -9,7 +9,6 @@ import android.graphics.Paint;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-
 public class Screen extends View {
 
     public Bitmap background = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
@@ -42,23 +41,31 @@ public class Screen extends View {
             return;  // draw graphics when tic is at 1
         }
 
-        //if(model.spaceShip.lives < 1) {
-            model.spaceShip.draw(canvas); // TODO: if no lives left, remove spaceship
-       // }
-        for (Asteroid asteroid : model.arAsteroid) {
-            asteroid.draw(canvas);
-        }
-        for (Bullet bullet : model.arBullets) {
-            bullet.draw(canvas);
+        if (model.isRunning) {
+            model.spaceShip.draw(canvas);
+            for (Asteroid asteroid : model.arAsteroid) {
+                asteroid.draw(canvas);
+            }
+            for (Bullet bullet : model.arBullets) {
+                bullet.draw(canvas);
+            }
+
+        } else {
+            gameOver(canvas);
         }
         drawPoints(canvas);
     }
 
     public void drawPoints(Canvas canvas) {
+        canvas.rotate(90, 0, 0);
+        canvas.drawText("Points: " + model.points.toString(), 25, -25, paint);
+        canvas.drawText("Lives: " + model.spaceShip.lives.toString(), 25, -75, paint);
+    }
 
-            canvas.rotate(90, 0, 25);
-            canvas.drawText("Points: " + model.points.toString(), 0, 0, paint);
-            canvas.drawText("Lives: " + model.spaceShip.lives.toString(), 0, -50,paint);
-
+    public void gameOver(Canvas canvas) {
+        paint.setTextSize(50);
+        model.killAll();
+        model.spaceShip.lives = 3;
+        canvas.drawText("GAME OVER! Tap to restart", width / 2, height / 2, paint);
     }
 }

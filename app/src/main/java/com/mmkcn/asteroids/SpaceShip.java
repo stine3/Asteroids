@@ -38,20 +38,20 @@ public class SpaceShip extends Moveable implements Serializable {
     }
 
     public void fire() {
-        Bullet bullet = new Bullet(x + centerX, y + centerY, direction, 200, 5);
+        Bullet bullet = new Bullet(x + centerX, y + centerY, direction, 300, 5);
         model.add(bullet);
     }
 
     public void move() {
-        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * 5;
-        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * 5;
+        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * 8;
+        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * 8;
         Log.d(TAG, "xPos: " + x + " / yPos: " + y);
         super.move();
     }
 
     public void moveBackwards() {
-        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * -5;
-        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * -5;
+        xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * -8;
+        ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * -8;
         super.move();
     }
 

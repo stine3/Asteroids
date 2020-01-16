@@ -1,27 +1,25 @@
 package com.mmkcn.asteroids;
 
 import android.app.Activity;
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.DisplayMetrics;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
-
-import java.util.Random;
+import android.view.WindowManager;
 
 public class Controller extends Activity implements SensorEventListener {
 
     private static final String TAG = "mmkcnController";
 
     private Screen screen;
-
     public Model model;
     private SensorManager sensorManager;
+    private Handler handler = new Handler();
 
     private CountDownTimer asTimer = new CountDownTimer(100000, 6000) {
         @Override
@@ -45,11 +43,10 @@ public class Controller extends Activity implements SensorEventListener {
                 model.asteroid = new Asteroid(0, 0, 0, 0);
             }
 
-            manageSensorMovement();// moves spaceship according to sensors
+            moveSpaceship();
             model.manageCollisions(); // manages bullet and asteroid collisions
             model.ticCounter++;
             model.deleteDead(); // delete hit bullets and asteroids
-
 
             // move all bullets and asteroids
             for (Asteroid asteroid : model.arAsteroid) {
@@ -57,6 +54,9 @@ public class Controller extends Activity implements SensorEventListener {
             }
             for (Bullet bullet : model.arBullets) {
                 bullet.move();
+            }
+            if (model.spaceShip.lives == 0) {
+                model.isRunning = false;
             }
             screen.invalidate();
         }
@@ -77,6 +77,7 @@ public class Controller extends Activity implements SensorEventListener {
         screen = new Screen(getApplicationContext());
         screen.setModel(model);
         setContentView(screen);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
@@ -103,18 +104,13 @@ public class Controller extends Activity implements SensorEventListener {
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
-        Sensor magneticField = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        if (magneticField != null) {
-            sensorManager.registerListener(this, magneticField, SensorManager.SENSOR_DELAY_NORMAL);
-        }
-
         if (model.isInit) {
             timer.start();
         }
     }
 
     @Override
-    protected void onPause() {      // persistence
+    protected void onPause() {
         super.onPause();
         Log.d(TAG, "onPause()");
         sensorManager.unregisterListener(this);
@@ -124,76 +120,56 @@ public class Controller extends Activity implements SensorEventListener {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        model.spaceShip.fire();
+        if (model.isRunning) {
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    model.spaceShip.fire();
+                }
+
+            }, 500);
+        } else {
+            model.isRunning = true;
+        }
         return super.onTouchEvent(event);
     }
 
-    private final float[] accelerometerReading = new float[3];
-    private final float[] magnetometerReading = new float[3];
-    private final float[] rotationMatrix = new float[9];
-    private final float[] orientationAngles = new float[3];
+
+    private float[] sensorValues = new float[3];
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
+        // x axis irrelevant
+        // y axis rotation
+        // z axis is move
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            accelerometerReading[0] = event.values[0];
-            accelerometerReading[1] = event.values[1];
-            accelerometerReading[2] = event.values[2];
-        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            magnetometerReading[0] = event.values[0];
-            magnetometerReading[1] = event.values[1];
-            magnetometerReading[2] = event.values[2];
+            sensorValues[0] = event.values[0];
+            sensorValues[1] = event.values[1];
+            sensorValues[2] = event.values[2];
         }
-        updateOrientationAngles();
-        //Log.d(TAG, "angles: x: " + xOri + " y: " + yOri + " z: " + zOri);
     }
 
+    public void moveSpaceship() {
+        if (sensorValues[1] < -1) {
+            // rotate left
+            model.spaceShip.rotate(-8);
+        }
+        if (sensorValues[1] > 1) {
+            //rotate right
+            model.spaceShip.rotate(8);
+        }
+        if (sensorValues[2] < -1) {
+            // move backwards
+            model.spaceShip.moveBackwards();
+        }
+        if (sensorValues[2] > 1) {
+            // move forwards
+            model.spaceShip.move();
+        }
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
-    }
-
-    public float xOri;
-    public float yOri;
-    public float zOri;
-
-    public void updateOrientationAngles() {
-        // Update rotation matrix, which is needed to update orientation angles.
-        SensorManager.getRotationMatrix(rotationMatrix, null,
-                accelerometerReading, magnetometerReading);
-
-        SensorManager.getOrientation(rotationMatrix, orientationAngles);
-        xOri = (float) Math.toDegrees(orientationAngles[0]);
-        yOri = (float) Math.toDegrees(orientationAngles[1]);
-        zOri = (float) Math.toDegrees(orientationAngles[2]);
-    }
-
-
-    // numbers here are degrees
-    public void manageSensorMovement() {
-
-        if (zOri < 80f && zOri > 110f) {
-            // nothing
-        } else if (zOri < 80f) {
-            // tilt phone forwards, moves spaceship backwards
-            model.spaceShip.moveBackwards();
-
-        } else if (zOri > 110f) {
-            // tilt phone backwards, moves spaceship forwards
-            model.spaceShip.move();
-        }
-
-        // orientation in y direction: orientation of spaceship
-        if (yOri > -10f && yOri < 10f) {
-            model.spaceShip.rotate(0);
-        } else if (yOri < 0f) {
-
-            model.spaceShip.rotate(-5);
-
-        } else if (yOri > 0f) {
-            model.spaceShip.rotate(5);
-        }
     }
 }

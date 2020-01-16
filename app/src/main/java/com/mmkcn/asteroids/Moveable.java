@@ -80,4 +80,5 @@ public class Moveable implements Serializable {
     public void draw(Canvas canvas) {
         canvas.drawBitmap(bitmap, x, y, null);
     }
+
 }

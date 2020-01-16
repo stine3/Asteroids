@@ -31,11 +31,13 @@ public class Bullet extends Moveable implements Serializable {
 
     @Override
     public void move() {
-        super.move();
+        x = x + xSpeed;
+        y = y + ySpeed;
 
         timeToLiveTics = timeToLiveTics - 1;
         if (timeToLiveTics == 0) {
             isAlive = false;
         }
     }
+
 }

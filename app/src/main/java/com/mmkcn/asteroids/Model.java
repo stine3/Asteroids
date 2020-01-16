@@ -44,8 +44,9 @@ public class Model {
     public ArrayList<Asteroid> arAsteroid = new ArrayList<Asteroid>();
 
     public Integer points = 0;
+    public boolean isRunning = true;
 
-    private float scale = 0; // scale bitmaps to logical screen size
+    private float scale; // scale bitmaps to logical screen size
 
     public Model(Activity myAct) {
         myActivity = myAct;
@@ -57,7 +58,7 @@ public class Model {
         logScreenWidth = (int) ((Model.logScreenHeight / (float) phyScreenHeight) * (float) phyScreenWidth);
         Log.v(TAG, "onWindowFocusChanged(): phys. height: " + phyScreenHeight + "  phys. width: " + phyScreenWidth);
         Log.v(TAG, "onWindowFocusChanged(): log. height: " + logScreenHeight + "  log. width: " + logScreenWidth);
-        scale = logScreenHeight / logScreenWidth;
+        scale = phyScreenHeight / phyScreenWidth * 1.2f;
         // initialize class attributes
         Moveable.setClassAttributes(ticDurationS, phyScreenWidth, phyScreenHeight);
         Bitmap spaceship = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.spaceship);
@@ -65,11 +66,11 @@ public class Model {
         SpaceShip.setClassAttributes(spaceship);
 
         Bitmap bullet = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.bulletv3);
-        bullet = Bitmap.createScaledBitmap(bullet, (int) (30 * scale), (int) (30 * scale), true);
+        bullet = Bitmap.createScaledBitmap(bullet, (int) (20 * scale), (int) (20 * scale), true);
         Bullet.setClassAttributes(bullet);
 
         Bitmap asteroid = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.asteroid);
-        asteroid = Bitmap.createScaledBitmap(asteroid, (int) (50 * scale), (int) (50 * scale), true);
+        asteroid = Bitmap.createScaledBitmap(asteroid, (int) (80 * scale), (int) (80 * scale), true);
         Asteroid.setClassAttributes(asteroid);
 
         load();
@@ -80,6 +81,10 @@ public class Model {
         arBullets.add(bullet);
     }
 
+    public void killAll() {
+        arBullets.clear();
+        arAsteroid.clear();
+    }
 
     public void deleteDead() {
         Iterator<Bullet> itB = arBullets.iterator();
