@@ -17,19 +17,15 @@ public class Screen extends View {
     int width = metrics.widthPixels;
     int height = metrics.heightPixels;
     double scale = height / 1080.0; // 1080px is the height of our background, which we use to scale to display size
-    public boolean orientation = true;
-
-
     Model model;
     Paint paint = new Paint();
 
 
     public Screen(Context context) {
-
         super(context);
         paint.setStyle(Paint.Style.FILL);
         paint.setColor(Color.YELLOW);
-        paint.setTextSize(paint.getTextSize() * 5);
+        paint.setTextSize(paint.getTextSize() * 4);
     }
 
     public void setModel(Model m) {
@@ -46,26 +42,23 @@ public class Screen extends View {
             return;  // draw graphics when tic is at 1
         }
 
-        if(model.spaceShip.lives < 1) {
-            model.spaceShip.draw(canvas);
-        }
+        //if(model.spaceShip.lives < 1) {
+            model.spaceShip.draw(canvas); // TODO: if no lives left, remove spaceship
+       // }
         for (Asteroid asteroid : model.arAsteroid) {
             asteroid.draw(canvas);
         }
         for (Bullet bullet : model.arBullets) {
             bullet.draw(canvas);
         }
-        drawPoints(canvas, orientation);
+        drawPoints(canvas);
     }
 
-    public void drawPoints(Canvas canvas, boolean rotation) {
-        if (rotation) {
+    public void drawPoints(Canvas canvas) {
+
             canvas.rotate(90, 0, 25);
-            canvas.drawText(model.points.toString(), 0, 0, paint);
-            canvas.drawText(model.spaceShip.lives.toString(), 50, -30,paint);
-        } else{
-            canvas.rotate(90, 0, 25);
-            canvas.drawText(model.points.toString(), 0, 0, paint);
-        }
+            canvas.drawText("Points: " + model.points.toString(), 0, 0, paint);
+            canvas.drawText("Lives: " + model.spaceShip.lives.toString(), 0, -50,paint);
+
     }
 }

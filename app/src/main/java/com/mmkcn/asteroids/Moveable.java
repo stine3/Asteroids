@@ -8,6 +8,8 @@ import android.util.Log;
 
 import java.io.Serializable;
 
+import static android.graphics.RectF.intersects;
+
 public class Moveable implements Serializable {
 
     private static final String TAG = "mmkcnMoveable";
@@ -66,12 +68,8 @@ public class Moveable implements Serializable {
         RectF rec, rec2;
         rec = moveable.getRect();
         rec2 = getRect();
-        boolean intersec = rec.intersect(rec2);
-        if (intersec) {
-            return true;
-        } else {
-            return false;
-        }
+        boolean intersec = intersects(rec, rec2);
+        return intersec;
     }
 
     public RectF getRect() {

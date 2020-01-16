@@ -28,7 +28,7 @@ public class Model {
     // static attributes
     private static final String TAG = "mmkcnModel";
     public static final float ticDurationS = 0.1f;  // Framerate
-    private static final String serialisationFile = "Persistenz4.dat";
+    private static final String serialisationFile = "asteroids.dat";
 
     // screen values
     public static final int logScreenHeight = 1000;  // logische Hoehe, die ist fix !!!, hierauf wird intern gemappt
@@ -45,6 +45,7 @@ public class Model {
 
     public Integer points = 0;
 
+    private float scale = 0; // scale bitmaps to logical screen size
 
     public Model(Activity myAct) {
         myActivity = myAct;
@@ -56,19 +57,19 @@ public class Model {
         logScreenWidth = (int) ((Model.logScreenHeight / (float) phyScreenHeight) * (float) phyScreenWidth);
         Log.v(TAG, "onWindowFocusChanged(): phys. height: " + phyScreenHeight + "  phys. width: " + phyScreenWidth);
         Log.v(TAG, "onWindowFocusChanged(): log. height: " + logScreenHeight + "  log. width: " + logScreenWidth);
-
+        scale = logScreenHeight / logScreenWidth;
         // initialize class attributes
-        Moveable.setClassAttributes(ticDurationS, logScreenWidth, logScreenHeight);
+        Moveable.setClassAttributes(ticDurationS, phyScreenWidth, phyScreenHeight);
         Bitmap spaceship = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.spaceship);
-        spaceship = Bitmap.createScaledBitmap(spaceship, 50, 50, true);
+        spaceship = Bitmap.createScaledBitmap(spaceship, (int) (50 * scale), (int) (50 * scale), true);
         SpaceShip.setClassAttributes(spaceship);
 
         Bitmap bullet = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.bulletv3);
-        bullet = Bitmap.createScaledBitmap(bullet, 30, 30, true);
+        bullet = Bitmap.createScaledBitmap(bullet, (int) (30 * scale), (int) (30 * scale), true);
         Bullet.setClassAttributes(bullet);
 
         Bitmap asteroid = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.asteroid);
-        asteroid = Bitmap.createScaledBitmap(asteroid, 50, 50, true);
+        asteroid = Bitmap.createScaledBitmap(asteroid, (int) (50 * scale), (int) (50 * scale), true);
         Asteroid.setClassAttributes(asteroid);
 
         load();
@@ -102,17 +103,17 @@ public class Model {
 
     public void manageCollisions() {
         for (Asteroid asteroid : arAsteroid) {
+            if (spaceShip.collision(asteroid)) {
+                Log.v(TAG, "collision() ------------------------------------------------------ ");
+                asteroid.isAlive = false;
+                spaceShip.lives--;
+                // TODO remove spaceship when lives are 0 or something
+            }
             for (Bullet bullet : arBullets) {
                 if (bullet.collision(asteroid)) {
                     asteroid.isAlive = false;
                     bullet.isAlive = false; // delete asteroid and bullet
                     points = points + 100;
-                }
-                if (spaceShip.collision(asteroid)) {
-                    Log.v(TAG, "collision() ------------------------------------------------------ ");
-                    asteroid.isAlive = false;
-                    spaceShip.lives--;
-                    // TODO kill spaceship or lose life or something
                 }
             }
         }
@@ -180,5 +181,4 @@ public class Model {
             }
         }
     }
-
 }

@@ -28,6 +28,7 @@ public class Controller extends Activity implements SensorEventListener {
         public void onTick(long millisUntilFinished) {
             model.arAsteroid.add(model.asteroid.generateRandomAst(screen.width, screen.height));
         }
+
         @Override
         public void onFinish() {
 
@@ -154,7 +155,6 @@ public class Controller extends Activity implements SensorEventListener {
 
     }
 
-
     public float xOri;
     public float yOri;
     public float zOri;
@@ -170,58 +170,30 @@ public class Controller extends Activity implements SensorEventListener {
         zOri = (float) Math.toDegrees(orientationAngles[2]);
     }
 
+
+    // numbers here are degrees
     public void manageSensorMovement() {
 
-        // if x > 0, then homebutton is left
-        if (xOri > 0) {
-            if (zOri > 85f && zOri < 95f) {
-                // do nothing, don't move
-            } else if (zOri < 90f) {
-                // tilt phone forwards, moves spaceship backwards
-                model.spaceShip.moveBackwards();
+        if (zOri < 80f && zOri > 110f) {
+            // nothing
+        } else if (zOri < 80f) {
+            // tilt phone forwards, moves spaceship backwards
+            model.spaceShip.moveBackwards();
 
-            } else if (zOri > 90f) {
-                // tilt phone backwards, moves spaceship forwards
-                model.spaceShip.move();
-            }
+        } else if (zOri > 110f) {
+            // tilt phone backwards, moves spaceship forwards
+            model.spaceShip.move();
+        }
 
-            // orientation in y direction: orientation of spaceship
-            if (yOri > -5f && yOri < 5f) {
-                model.spaceShip.rotate(0);
-            } else if (yOri < 0f) {
+        // orientation in y direction: orientation of spaceship
+        if (yOri > -10f && yOri < 10f) {
+            model.spaceShip.rotate(0);
+        } else if (yOri < 0f) {
 
-                model.spaceShip.rotate(-5);
+            model.spaceShip.rotate(-5);
 
-            } else if (yOri > 0f) {
-                model.spaceShip.rotate(5);
-            }
-
-            screen.orientation = false;
-
-            // else x is negative, so the homebutton is right
-        } else {
-            if (zOri < -85f && zOri > -95f) {
-                // do nothing, don't move
-            } else if (zOri < -90f) {
-                // tilt phone forwards, moves spaceship backwards
-                model.spaceShip.moveBackwards();
-
-            } else if (zOri > -90f) {
-                // tilt phone backwards, moves spaceship forwards
-                model.spaceShip.move();
-            }
-
-            // orientation in y direction: orientation of spaceship
-            if (yOri > -5f && yOri < 5f) {
-                model.spaceShip.rotate(0);
-            } else if (yOri > 0f) {
-
-                model.spaceShip.rotate(-5);
-
-            } else if (yOri < 0f) {
-                model.spaceShip.rotate(5);
-            }
-            screen.orientation = true;
+        } else if (yOri > 0f) {
+            model.spaceShip.rotate(5);
         }
     }
 }
