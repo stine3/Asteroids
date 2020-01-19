@@ -107,6 +107,7 @@ public class Model {
         }
     }
 
+    private MediaPlayer mp;
 
     public void manageCollisions() {
         for (Asteroid asteroid : arAsteroid) {
@@ -114,19 +115,17 @@ public class Model {
                 Log.v(TAG, "collision() ------------------------------------------------------ ");
                 asteroid.isAlive = false;
                 spaceShip.lives--;
-
-                MediaPlayer mp = MediaPlayer.create(myActivity, R.raw.bang);
                 //mp.seekTo(0);
+                mp = MediaPlayer.create(myActivity, R.raw.bang);
                 mp.start();
-                // TODO remove spaceship when lives are 0 or something
             }
             for (Bullet bullet : arBullets) {
                 if (bullet.collision(asteroid)) {
                     asteroid.isAlive = false;
                     bullet.isAlive = false; // delete asteroid and bullet
                     points = points + 100;
-                    MediaPlayer mp = MediaPlayer.create(myActivity, R.raw.bang);
                     //mp.seekTo(0);
+                    mp = MediaPlayer.create(myActivity, R.raw.bang);
                     mp.start();
                 }
             }

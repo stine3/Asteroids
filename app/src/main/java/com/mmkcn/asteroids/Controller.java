@@ -131,11 +131,17 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
         model.save();   // onPause always gets called when closing an app -> we save our values at this point
     }
 
+
+    private MediaPlayer mp;
+
     @Override
     public void onClick(View v) {
 
         if (model.isRunning) {
             model.spaceShip.fire();
+            Log.d(TAG, "sound");
+            mp = MediaPlayer.create(this, R.raw.fire);
+            mp.start();
             screen.setOnClickListener(null);
             handler.postDelayed(new Runnable() {
                 @Override
@@ -145,17 +151,12 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
             }, 500);
 
         } else { // game is over, click to play again
-
-            Log.d(TAG, "sound");
-            MediaPlayer mp = MediaPlayer.create(this, R.raw.fire);
-            mp.start();
-
-        } else {
             model.isRunning = true;
             model.points = 0;
             model.spaceShip.lives = 3;
         }
     }
+
     private float[] sensorValues = new float[3];
 
     @Override
