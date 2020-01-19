@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.util.Log;
 
@@ -112,6 +113,9 @@ public class Model {
                 Log.v(TAG, "collision() ------------------------------------------------------ ");
                 asteroid.isAlive = false;
                 spaceShip.lives--;
+                MediaPlayer mp = MediaPlayer.create(myActivity, R.raw.bang);
+                //mp.seekTo(0);
+                mp.start();
                 // TODO remove spaceship when lives are 0 or something
             }
             for (Bullet bullet : arBullets) {
@@ -119,6 +123,9 @@ public class Model {
                     asteroid.isAlive = false;
                     bullet.isAlive = false; // delete asteroid and bullet
                     points = points + 100;
+                    MediaPlayer mp = MediaPlayer.create(myActivity, R.raw.bang);
+                    //mp.seekTo(0);
+                    mp.start();
                 }
             }
         }

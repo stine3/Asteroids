@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -15,6 +18,7 @@ import android.view.WindowManager;
 public class Controller extends Activity implements SensorEventListener {
 
     private static final String TAG = "mmkcnController";
+
 
     private Screen screen;
     public Model model;
@@ -78,6 +82,7 @@ public class Controller extends Activity implements SensorEventListener {
         screen.setModel(model);
         setContentView(screen);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     @Override
@@ -128,13 +133,17 @@ public class Controller extends Activity implements SensorEventListener {
                 }
 
             }, 500);
+            Log.d(TAG, "sound");
+            MediaPlayer mp = MediaPlayer.create(this, R.raw.fire);
+            mp.start();
+
         } else {
             model.isRunning = true;
         }
         return super.onTouchEvent(event);
     }
 
-
+ 
     private float[] sensorValues = new float[3];
 
     @Override
