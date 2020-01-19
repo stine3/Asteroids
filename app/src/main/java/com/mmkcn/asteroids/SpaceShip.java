@@ -12,7 +12,7 @@ public class SpaceShip extends Moveable implements Serializable {
     private static final String TAG = "mmkcnSpaceShip";
     private static Bitmap bitmap;
     private transient Model model;
-    public int lives = 3;
+    public Integer lives = 3;
 
     public float direction;  // in degrees
 
