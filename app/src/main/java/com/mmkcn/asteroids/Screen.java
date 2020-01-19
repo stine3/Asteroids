@@ -63,7 +63,7 @@ public class Screen extends View {
         canvas.save();
         canvas.rotate(90);
         canvas.drawText("Points: " + model.points, 25, -25, paint);
-        canvas.drawText("Lives: " + model.spaceShip.lives.toString(), 25, -75, paint);
+        canvas.drawText("Lives: " + model.spaceShip.lives, 25, -75, paint);
         canvas.restore();
     }
 
@@ -72,7 +72,8 @@ public class Screen extends View {
         canvas.save();
         canvas.rotate(90);
         paint.setTextSize(50);
-        model.killAll();
+        model.arBullets.clear();
+        model.arAsteroid.clear();
         canvas.drawText("GAME OVER! Tap to restart", width / 2 - 50, height / 2 * -1 + 100, paint); // random numbers so it's somewhat in the middle
         canvas.restore();
     }

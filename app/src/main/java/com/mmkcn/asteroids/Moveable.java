@@ -30,11 +30,7 @@ public class Moveable implements Serializable {
     private transient Bitmap bitmap;
     protected transient Paint paint;
 
-    public static void setClassAttributes(float ticDurationS, int screenWidth, int screenHeight) {
-        stTicDurationS = ticDurationS;
-        stScreenWidth = screenWidth;
-        stScreenHeight = screenHeight;
-    }
+
 
     public Moveable(float xStart, float yStart, float direction, float speed) {
         // test, if class attributes are initialized
@@ -47,6 +43,12 @@ public class Moveable implements Serializable {
 
     public Moveable() { // standard constructor
         float test = stTicDurationS;
+    }
+
+    public static void setClassAttributes(float ticDurationS, int screenWidth, int screenHeight) {
+        stTicDurationS = ticDurationS;
+        stScreenWidth = screenWidth;
+        stScreenHeight = screenHeight;
     }
 
     public void init(Bitmap bitmap) {

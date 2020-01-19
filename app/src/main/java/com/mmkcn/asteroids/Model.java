@@ -23,9 +23,6 @@ import java.util.Iterator;
 
 public class Model {
 
-// TODO: getter and setter, serialize whole object instead of every moveable
-
-
     // static attributes
     private static final String TAG = "mmkcnModel";
     public static final float ticDurationS = 0.1f;  // Framerate
@@ -83,10 +80,8 @@ public class Model {
         arBullets.add(bullet);
     }
 
-    public void killAll() {
-        arBullets.clear();
-        arAsteroid.clear();
-    }
+
+
 
     public void deleteDead() {
         Iterator<Bullet> itB = arBullets.iterator();
