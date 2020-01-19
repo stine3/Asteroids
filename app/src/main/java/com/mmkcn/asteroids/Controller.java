@@ -18,8 +18,6 @@ import android.view.WindowManager;
 public class Controller extends Activity implements View.OnClickListener, SensorEventListener {
 
     private static final String TAG = "mmkcnController";
-
-
     private Screen screen;
     public Model model;
     private SensorManager sensorManager;
@@ -28,13 +26,12 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
 
     private int asTimerInterval = 6000;
 
-    private CountDownTimer asTimer = new CountDownTimer(20000, asTimerInterval) {
+    private CountDownTimer asTimer = new CountDownTimer(24000, asTimerInterval) {
         @Override
         public void onTick(long millisUntilFinished) {
             model.arAsteroid.add(model.asteroid.generateRandomAst(screen.width, screen.height));
             Log.d(TAG, "added Asteroid");
         }
-
         @Override
         public void onFinish() {
             asTimerInterval = asTimerInterval - 2000;
@@ -66,6 +63,8 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
             }
             if (model.spaceShip.lives == 0) {
                 model.isRunning = false;
+                timer.cancel();
+                asTimer.cancel();
             }
             screen.invalidate();
         }
@@ -90,7 +89,6 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
         setContentView(screen);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
     }
 
     @Override
@@ -107,7 +105,7 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
     }
 
     @Override
-    protected void onResume() {     // persistence
+    protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume()");
 
@@ -154,6 +152,8 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
             model.isRunning = true;
             model.points = 0;
             model.spaceShip.lives = 3;
+            timer.start();
+            asTimer.start();
         }
     }
 
