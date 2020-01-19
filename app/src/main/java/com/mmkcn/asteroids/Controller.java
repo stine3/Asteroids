@@ -9,10 +9,10 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowManager;
 
-public class Controller extends Activity implements SensorEventListener {
+public class Controller extends Activity implements View.OnClickListener, SensorEventListener {
 
     private static final String TAG = "mmkcnController";
 
@@ -20,16 +20,21 @@ public class Controller extends Activity implements SensorEventListener {
     public Model model;
     private SensorManager sensorManager;
     private Handler handler = new Handler();
+    private View.OnClickListener listener;
 
-    private CountDownTimer asTimer = new CountDownTimer(100000, 6000) {
+    private int asTimerInterval = 6000;
+
+    private CountDownTimer asTimer = new CountDownTimer(20000, asTimerInterval) {
         @Override
         public void onTick(long millisUntilFinished) {
             model.arAsteroid.add(model.asteroid.generateRandomAst(screen.width, screen.height));
+            Log.d(TAG, "added Asteroid");
         }
 
         @Override
         public void onFinish() {
-
+            asTimerInterval = asTimerInterval - 2000;
+            this.start();
         }
     };
 
@@ -40,7 +45,7 @@ public class Controller extends Activity implements SensorEventListener {
             // create graphics on start
             if (model.ticCounter == 0) {
                 model.spaceShip = new SpaceShip(screen.width / 2, screen.height / 2, model);
-                model.asteroid = new Asteroid(0, 0, 0, 0);
+                model.asteroid = new Asteroid();
             }
 
             moveSpaceship();
@@ -71,12 +76,15 @@ public class Controller extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate()");
-        sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
 
+        sensorManager = (SensorManager) getSystemService(this.SENSOR_SERVICE);
         model = new Model(this);
         screen = new Screen(getApplicationContext());
         screen.setModel(model);
+        listener = this;
+        screen.setOnClickListener(listener);
         setContentView(screen);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -85,10 +93,8 @@ public class Controller extends Activity implements SensorEventListener {
 
         // we need the screen size before we can initialize the view
         Log.d(TAG, "onWindowFocusChanged() ");
-        if (!model.isInit) {
-            Log.d(TAG, "onWindowFocusChanged(): Initialisierung !!! ");
 
-            // initialize model
+        if (!model.isInit) {
             model.init(screen.getHeight(), screen.getWidth());
             timer.start();
             asTimer.start();
@@ -106,6 +112,7 @@ public class Controller extends Activity implements SensorEventListener {
         }
         if (model.isInit) {
             timer.start();
+            asTimer.start();
         }
     }
 
@@ -115,25 +122,29 @@ public class Controller extends Activity implements SensorEventListener {
         Log.d(TAG, "onPause()");
         sensorManager.unregisterListener(this);
         timer.cancel();
+        asTimer.cancel();
         model.save();   // onPause always gets called when closing an app -> we save our values at this point
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public void onClick(View v) {
+
         if (model.isRunning) {
+            model.spaceShip.fire();
+            screen.setOnClickListener(null);
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    model.spaceShip.fire();
+                    screen.setOnClickListener(listener);
                 }
-
             }, 500);
-        } else {
-            model.isRunning = true;
-        }
-        return super.onTouchEvent(event);
-    }
 
+        } else { // game is over, click to play again
+            model.isRunning = true;
+            model.points = 0;
+            model.spaceShip.lives = 3;
+        }
+    }
 
     private float[] sensorValues = new float[3];
 
@@ -172,4 +183,6 @@ public class Controller extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
+
 }

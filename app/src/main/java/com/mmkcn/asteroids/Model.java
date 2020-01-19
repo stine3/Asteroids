@@ -43,8 +43,8 @@ public class Model {
     public ArrayList<Bullet> arBullets = new ArrayList<Bullet>();
     public ArrayList<Asteroid> arAsteroid = new ArrayList<Asteroid>();
 
-    public Integer points = 0;
-    public boolean isRunning = true;
+    public int points = 0;
+    public boolean isRunning = false;
 
     private float scale; // scale bitmaps to logical screen size
 
@@ -74,6 +74,7 @@ public class Model {
         Asteroid.setClassAttributes(asteroid);
 
         load();
+        isRunning = true;
         isInit = true;
     }
 
@@ -112,7 +113,6 @@ public class Model {
                 Log.v(TAG, "collision() ------------------------------------------------------ ");
                 asteroid.isAlive = false;
                 spaceShip.lives--;
-                // TODO remove spaceship when lives are 0 or something
             }
             for (Bullet bullet : arBullets) {
                 if (bullet.collision(asteroid)) {

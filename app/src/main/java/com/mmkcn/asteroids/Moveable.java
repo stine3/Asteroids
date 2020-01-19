@@ -45,6 +45,10 @@ public class Moveable implements Serializable {
         this.speed = speed;
     }
 
+    public Moveable() { // standard constructor
+        float test = stTicDurationS;
+    }
+
     public void init(Bitmap bitmap) {
         // initializing remaining attributes
         this.bitmap = bitmap;

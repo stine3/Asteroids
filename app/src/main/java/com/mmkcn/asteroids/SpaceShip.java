@@ -45,7 +45,7 @@ public class SpaceShip extends Moveable implements Serializable {
     public void move() {
         xSpeed = (float) Math.cos((double) direction * Math.PI / 180f) * 8;
         ySpeed = (float) Math.sin((double) direction * Math.PI / 180f) * 8;
-        Log.d(TAG, "xPos: " + x + " / yPos: " + y);
+       //  Log.d(TAG, "xPos: " + x + " / yPos: " + y);
         super.move();
     }
 

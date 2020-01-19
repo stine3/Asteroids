@@ -25,6 +25,10 @@ public class Asteroid extends Moveable implements Serializable {
         super.init(Asteroid.bitmap);
     }
 
+    public Asteroid(){ // standard constructor
+
+    }
+
     public void init() {
         super.init(Asteroid.bitmap);
     }
