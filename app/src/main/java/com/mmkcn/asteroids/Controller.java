@@ -5,6 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -15,6 +18,7 @@ import android.view.WindowManager;
 public class Controller extends Activity implements View.OnClickListener, SensorEventListener {
 
     private static final String TAG = "mmkcnController";
+
 
     private Screen screen;
     public Model model;
@@ -86,6 +90,7 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
         setContentView(screen);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     @Override
@@ -140,12 +145,17 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
             }, 500);
 
         } else { // game is over, click to play again
+
+            Log.d(TAG, "sound");
+            MediaPlayer mp = MediaPlayer.create(this, R.raw.fire);
+            mp.start();
+
+        } else {
             model.isRunning = true;
             model.points = 0;
             model.spaceShip.lives = 3;
         }
     }
-
     private float[] sensorValues = new float[3];
 
     @Override
@@ -183,6 +193,4 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
-
-
 }
