@@ -14,7 +14,8 @@ import android.view.View;
 
 public class Screen extends View {
 
-    public Bitmap background = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
+    private Bitmap background = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.background);
+    private Bitmap startscreen = BitmapFactory.decodeResource(getContext().getResources(), R.drawable.unbenannt);
     DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
     int width = metrics.widthPixels;
     int height = metrics.heightPixels;
@@ -41,21 +42,30 @@ public class Screen extends View {
         background = Bitmap.createScaledBitmap(background, (int) (1920 * scale), (int) (1080 * scale), true); // scale bitmap to screen size
         canvas.drawBitmap(background, 0, 0, paint); // draw bitmap at top left corner (0,0)
 
-        if ((model.ticCounter == 0)) {
-            return;  // draw graphics when tic is at 1
-        }
-        if (model.isRunning) {
-            model.spaceShip.draw(canvas);
-            for (Asteroid asteroid : model.arAsteroid) {
-                asteroid.draw(canvas);
-            }
-            for (Bullet bullet : model.arBullets) {
-                bullet.draw(canvas);
-            }
+        if (!model.firstInit) {
+            canvas.save();
+            // canvas.rotate(90);
+            startscreen = Bitmap.createScaledBitmap(startscreen, width, height, true);
+            canvas.drawBitmap(startscreen, 0, 0, paint);
+            canvas.restore();
         } else {
-            gameOver(canvas);
+
+            if ((model.ticCounter == 0)) {
+                return;  // draw graphics when tic is at 1
+            }
+            if (model.isRunning) {
+                model.spaceShip.draw(canvas);
+                for (Asteroid asteroid : model.arAsteroid) {
+                    asteroid.draw(canvas);
+                }
+                for (Bullet bullet : model.arBullets) {
+                    bullet.draw(canvas);
+                }
+            } else {
+                gameOver(canvas);
+            }
+            drawPoints(canvas);
         }
-        drawPoints(canvas);
     }
 
 

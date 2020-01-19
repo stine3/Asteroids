@@ -43,6 +43,7 @@ public class Model {
 
     public int points = 0;
     public boolean isRunning = false;
+    public boolean firstInit = false;
 
     private float scale; // scale bitmaps to logical screen size
 
@@ -59,8 +60,8 @@ public class Model {
         scale = phyScreenHeight / phyScreenWidth * 1.2f;
         // initialize class attributes
         Moveable.setClassAttributes(ticDurationS, phyScreenWidth, phyScreenHeight);
-        Bitmap spaceship = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.spaceship);
-        spaceship = Bitmap.createScaledBitmap(spaceship, (int) (50 * scale), (int) (50 * scale), true);
+        Bitmap spaceship = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.rocketflying);
+        spaceship = Bitmap.createScaledBitmap(spaceship, (int) (60 * scale), (int) (60 * scale), true);
         SpaceShip.setClassAttributes(spaceship);
 
         Bitmap bullet = BitmapFactory.decodeResource(myActivity.getResources(), R.drawable.bulletv3);

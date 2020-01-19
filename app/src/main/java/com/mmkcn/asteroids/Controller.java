@@ -135,25 +135,31 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
     @Override
     public void onClick(View v) {
 
-        if (model.isRunning) {
-            model.spaceShip.fire();
-            Log.d(TAG, "sound");
-            mp = MediaPlayer.create(this, R.raw.fire);
-            mp.start();
-            screen.setOnClickListener(null);
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    screen.setOnClickListener(listener);
-                }
-            }, 500);
+        if(!model.firstInit){
+            model.firstInit = true;
 
-        } else { // game is over, click to play again
-            model.isRunning = true;
-            model.points = 0;
-            model.spaceShip.lives = 3;
-            timer.start();
-            asTimer.start();
+        } else {
+
+            if (model.isRunning) {
+                model.spaceShip.fire();
+                Log.d(TAG, "sound");
+                mp = MediaPlayer.create(this, R.raw.fire);
+                mp.start();
+                screen.setOnClickListener(null);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        screen.setOnClickListener(listener);
+                    }
+                }, 500);
+
+            } else { // game is over, click to play again
+                model.isRunning = true;
+                model.points = 0;
+                model.spaceShip.lives = 3;
+                timer.start();
+                asTimer.start();
+            }
         }
     }
 
