@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +45,6 @@ public class Screen extends View {
 
         if (!model.firstInit) {
             canvas.save();
-            // canvas.rotate(90);
             startscreen = Bitmap.createScaledBitmap(startscreen, width, height, true);
             canvas.drawBitmap(startscreen, 0, 0, paint);
             canvas.restore();

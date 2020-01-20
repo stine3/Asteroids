@@ -49,6 +49,7 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
                 model.asteroid = new Asteroid();
             }
 
+
             moveSpaceship();
             model.manageCollisions(); // manages bullet and asteroid collisions
             model.ticCounter++;
@@ -88,6 +89,8 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
         screen.setOnClickListener(listener);
         setContentView(screen);
 
+
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -101,6 +104,10 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
             model.init(screen.getHeight(), screen.getWidth());
             timer.start();
             asTimer.start();
+        }
+        if(!model.firstInit) {
+            mp = MediaPlayer.create(this, R.raw.startmelody);
+            mp.start();
         }
     }
 
@@ -137,12 +144,12 @@ public class Controller extends Activity implements View.OnClickListener, Sensor
 
         if(!model.firstInit){
             model.firstInit = true;
+            mp.stop();
 
         } else {
-
             if (model.isRunning) {
                 model.spaceShip.fire();
-                Log.d(TAG, "sound");
+              //  Log.d(TAG, "sound");
                 mp = MediaPlayer.create(this, R.raw.fire);
                 mp.start();
                 screen.setOnClickListener(null);
